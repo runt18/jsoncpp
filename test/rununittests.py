@@ -45,7 +45,7 @@ def runAllTests(exe_path, use_valgrind=False):
     test_names = [name.strip() for name in test_names.decode('utf-8').strip().split('\n')]
     failures = []
     for name in test_names:
-        print('TESTING %s:' % name, end=' ')
+        print('TESTING {0!s}:'.format(name), end=' ')
         succeed, result = test_proxy.run(['--test', name])
         if succeed:
             print('OK')
@@ -58,10 +58,10 @@ def runAllTests(exe_path, use_valgrind=False):
         print()
         for name, result in failures:
             print(result)
-        print('%d/%d tests passed (%d failure(s))' % (            pass_count, len(test_names), failed_count))
+        print('{0:d}/{1:d} tests passed ({2:d} failure(s))'.format(pass_count, len(test_names), failed_count))
         return 1
     else:
-        print('All %d tests passed' % len(test_names))
+        print('All {0:d} tests passed'.format(len(test_names)))
         return 0
 
 def main():

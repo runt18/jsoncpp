@@ -73,7 +73,7 @@ def check_no_pending_commit():
         path = entry.get('path')
         status = entry.find('wc-status').get('item')
         if status != 'unversioned' and path != 'version':
-            msg.append('File "%s" has pending change (status="%s")' % (path, status))
+            msg.append('File "{0!s}" has pending change (status="{1!s}")'.format(path, status))
     if msg:
         msg.insert(0, 'Pending change to commit found in sandbox. Commit them first!')
     return '\n'.join(msg)
@@ -154,9 +154,9 @@ def download(url, target_path):
         fout.close()
 
 def check_compile(distcheck_top_dir, platform):
-    cmd = [sys.executable, 'scons.py', 'platform=%s' % platform, 'check']
+    cmd = [sys.executable, 'scons.py', 'platform={0!s}'.format(platform), 'check']
     print('Running:', ' '.join(cmd))
-    log_path = os.path.join(distcheck_top_dir, 'build-%s.log' % platform)
+    log_path = os.path.join(distcheck_top_dir, 'build-{0!s}.log'.format(platform))
     flog = open(log_path, 'wb')
     try:
         process = subprocess.Popen(cmd,
@@ -203,7 +203,7 @@ def sourceforge_web_synchro(sourceforge_project, doc_dir,
                              user=None, sftp='sftp'):
     """Notes: does not synchronize sub-directory of doc-dir.
     """
-    userhost = '%s,%s@web.sourceforge.net' % (user, sourceforge_project)
+    userhost = '{0!s},{1!s}@web.sourceforge.net'.format(user, sourceforge_project)
     stdout = run_sftp_batch(userhost, sftp, """
 cd htdocs
 dir
@@ -229,9 +229,9 @@ exit
         print('Removing the following file from web:')
         print('\n'.join(paths_to_remove))
         stdout = run_sftp_batch(userhost, sftp, """cd htdocs
-rm %s
-exit""" % ' '.join(paths_to_remove))
-    print('Uploading %d files:' % len(upload_paths))
+rm {0!s}
+exit""".format(' '.join(paths_to_remove)))
+    print('Uploading {0:d} files:'.format(len(upload_paths)))
     batch_size = 10
     upload_paths = list(upload_paths)
     start_time = time.time()
@@ -240,18 +240,18 @@ exit""" % ' '.join(paths_to_remove))
         file_per_sec = (time.time() - start_time) / (index+1)
         remaining_files = len(upload_paths) - index
         remaining_sec = file_per_sec * remaining_files
-        print('%d/%d, ETA=%.1fs' % (index+1, len(upload_paths), remaining_sec))
+        print('{0:d}/{1:d}, ETA={2:.1f}s'.format(index+1, len(upload_paths), remaining_sec))
         run_sftp_batch(userhost, sftp, """cd htdocs
-lcd %s
-mput %s
-exit""" % (doc_dir, ' '.join(paths)), retry=3)
+lcd {0!s}
+mput {1!s}
+exit""".format(doc_dir, ' '.join(paths)), retry=3)
 
 def sourceforge_release_tarball(sourceforge_project, paths, user=None, sftp='sftp'):
-    userhost = '%s,%s@frs.sourceforge.net' % (user, sourceforge_project)
+    userhost = '{0!s},{1!s}@frs.sourceforge.net'.format(user, sourceforge_project)
     run_sftp_batch(userhost, sftp, """
-mput %s
+mput {0!s}
 exit
-""" % (' '.join(paths),))
+""".format(' '.join(paths)))
 
 
 def main():
@@ -312,7 +312,7 @@ Warning: --force should only be used when developping/testing the release script
             if options.retag_release:
                 svn_remove_tag(tag_url, 'Overwriting previous tag')
             else:
-                print('Aborting, tag %s already exist. Use --retag to overwrite it!' % tag_url)
+                print('Aborting, tag {0!s} already exist. Use --retag to overwrite it!'.format(tag_url))
                 sys.exit(1)
         svn_tag_sandbox(tag_url, 'Release ' + release_version)
 
@@ -329,14 +329,14 @@ Warning: --force should only be used when developping/testing the release script
         fix_sources_eol(export_dir)
         
         source_dir = 'jsoncpp-src-' + release_version
-        source_tarball_path = 'dist/%s.tar.gz' % source_dir
+        source_tarball_path = 'dist/{0!s}.tar.gz'.format(source_dir)
         print('Generating source tarball to', source_tarball_path)
         tarball.make_tarball(source_tarball_path, [export_dir], export_dir, prefix_dir=source_dir)
 
-        amalgamation_tarball_path = 'dist/%s-amalgamation.tar.gz' % source_dir
+        amalgamation_tarball_path = 'dist/{0!s}-amalgamation.tar.gz'.format(source_dir)
         print('Generating amalgamation source tarball to', amalgamation_tarball_path)
         amalgamation_dir = 'dist/amalgamation'
-        amalgamate.amalgamate_source(export_dir, '%s/jsoncpp.cpp' % amalgamation_dir, 'json/json.h')
+        amalgamate.amalgamate_source(export_dir, '{0!s}/jsoncpp.cpp'.format(amalgamation_dir), 'json/json.h')
         amalgamation_source_dir = 'jsoncpp-src-amalgamation' + release_version
         tarball.make_tarball(amalgamation_tarball_path, [amalgamation_dir],
                               amalgamation_dir, prefix_dir=amalgamation_source_dir)

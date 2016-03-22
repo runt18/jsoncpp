@@ -66,7 +66,7 @@ def getstatusoutput(cmd):
 def run_cmd(cmd, silent=False):
     """Raise exception on failure.
     """
-    info = 'Running: %r in %r' %(' '.join(cmd), os.getcwd())
+    info = 'Running: {0!r} in {1!r}'.format(' '.join(cmd), os.getcwd())
     print(info)
     sys.stdout.flush()
     if silent:
@@ -74,16 +74,16 @@ def run_cmd(cmd, silent=False):
     else:
         status, output = subprocess.call(cmd), ''
     if status:
-        msg = 'Error while %s ...\n\terror=%d, output="""%s"""' %(info, status, output)
+        msg = 'Error while {0!s} ...\n\terror={1:d}, output="""{2!s}"""'.format(info, status, output)
         raise Exception(msg)
 
 def assert_is_exe(path):
     if not path:
         raise Exception('path is empty.')
     if not os.path.isfile(path):
-        raise Exception('%r is not a file.' %path)
+        raise Exception('{0!r} is not a file.'.format(path))
     if not os.access(path, os.X_OK):
-        raise Exception('%r is not executable by this user.' %path)
+        raise Exception('{0!r} is not executable by this user.'.format(path))
 
 def run_doxygen(doxygen_path, config_file, working_dir, is_silent):
     assert_is_exe(doxygen_path)

@@ -49,10 +49,10 @@ def compareOutputs(expected, actual, message):
         if index >= len(lines):
             return ''
         return lines[index].strip()
-    return """  Difference in %s at line %d:
-  Expected: '%s'
-  Actual:   '%s'
-""" % (message, diff_line,
+    return """  Difference in {0!s} at line {1:d}:
+  Expected: '{2!s}'
+  Actual:   '{3!s}'
+""".format(message, diff_line,
        safeGetLine(expected,diff_line),
        safeGetLine(actual,diff_line))
         
@@ -60,7 +60,7 @@ def safeReadFile(path):
     try:
         return open(path, 'rt', encoding = 'utf-8').read()
     except IOError as e:
-        return '<File "%s" is missing: %s>' % (path,e)
+        return '<File "{0!s}" is missing: {1!s}>'.format(path, e)
 
 def runAllTests(jsontest_executable_path, input_dir = None,
                  use_valgrind=False, with_json_checker=False,
@@ -79,16 +79,16 @@ def runAllTests(jsontest_executable_path, input_dir = None,
         is_json_checker_test = (input_path in test_jsonchecker) or expect_failure
         print('TESTING:', input_path, end=' ')
         options = is_json_checker_test and '--json-checker' or ''
-        options += ' --json-writer %s'%writerClass
-        cmd = '%s%s %s "%s"' % (            valgrind_path, jsontest_executable_path, options,
+        options += ' --json-writer {0!s}'.format(writerClass)
+        cmd = '{0!s}{1!s} {2!s} "{3!s}"'.format(valgrind_path, jsontest_executable_path, options,
             input_path)
         status, process_output = getStatusOutput(cmd)
         if is_json_checker_test:
             if expect_failure:
                 if not status:
                     print('FAILED')
-                    failed_tests.append((input_path, 'Parsing should have failed:\n%s' %
-                                          safeReadFile(input_path)))
+                    failed_tests.append((input_path, 'Parsing should have failed:\n{0!s}'.format(
+                                          safeReadFile(input_path))))
                 else:
                     print('OK')
             else:
@@ -123,11 +123,11 @@ def runAllTests(jsontest_executable_path, input_dir = None,
             print('* Test', failed_test[0])
             print(failed_test[1])
             print()
-        print('Test results: %d passed, %d failed.' % (len(tests)-len(failed_tests),
+        print('Test results: {0:d} passed, {1:d} failed.'.format(len(tests)-len(failed_tests),
                                                        len(failed_tests)))
         return 1
     else:
-        print('All %d tests passed.' % len(tests))
+        print('All {0:d} tests passed.'.format(len(tests)))
         return 0
 
 def main():

@@ -25,28 +25,28 @@ rewrite_actual_path = base_path + '.actual-rewrite'
 def valueTreeToString(fout, value, path = '.'):
     ty = type(value) 
     if ty  is types.DictType:
-        fout.write('%s={}\n' % path)
+        fout.write('{0!s}={{}}\n'.format(path))
         suffix = path[-1] != '.' and '.' or ''
         names = value.keys()
         names.sort()
         for name in names:
             valueTreeToString(fout, value[name], path + suffix + name)
     elif ty is types.ListType:
-        fout.write('%s=[]\n' % path)
+        fout.write('{0!s}=[]\n'.format(path))
         for index, childValue in zip(xrange(0,len(value)), value):
-            valueTreeToString(fout, childValue, path + '[%d]' % index)
+            valueTreeToString(fout, childValue, path + '[{0:d}]'.format(index))
     elif ty is types.StringType:
-        fout.write('%s="%s"\n' % (path,value))
+        fout.write('{0!s}="{1!s}"\n'.format(path, value))
     elif ty is types.IntType:
-        fout.write('%s=%d\n' % (path,value))
+        fout.write('{0!s}={1:d}\n'.format(path, value))
     elif ty is types.FloatType:
-        fout.write('%s=%.16g\n' % (path,value))
+        fout.write('{0!s}={1:.16g}\n'.format(path, value))
     elif value is True:
-        fout.write('%s=true\n' % path)
+        fout.write('{0!s}=true\n'.format(path))
     elif value is False:
-        fout.write('%s=false\n' % path)
+        fout.write('{0!s}=false\n'.format(path))
     elif value is None:
-        fout.write('%s=null\n' % path)
+        fout.write('{0!s}=null\n'.format(path))
     else:
         assert False and "Unexpected value type"
         

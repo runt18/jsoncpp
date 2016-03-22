@@ -31,7 +31,7 @@ def generate(env):
             contents = f.read()
             f.close()
         except:
-            raise SCons.Errors.UserError("Can't read source file %s"%sourcefile)
+            raise SCons.Errors.UserError("Can't read source file {0!s}".format(sourcefile))
         for (k,v) in list(dict.items()):
             contents = re.sub(k, v, contents)
         try:
@@ -39,7 +39,7 @@ def generate(env):
             f.write(contents)
             f.close()
         except:
-            raise SCons.Errors.UserError("Can't write target file %s"%targetfile)
+            raise SCons.Errors.UserError("Can't write target file {0!s}".format(targetfile))
         return 0 # success
 
     def subst_in_file(target, source, env):
@@ -52,13 +52,13 @@ def generate(env):
             elif SCons.Util.is_String(v):
                 d[k] = env.subst(v).replace('\\','\\\\')
             else:
-                raise SCons.Errors.UserError("SubstInFile: key %s: %s must be a string or callable"%(k, repr(v)))
+                raise SCons.Errors.UserError("SubstInFile: key {0!s}: {1!s} must be a string or callable".format(k, repr(v)))
         for (t,s) in zip(target, source):
             return do_subst_in_file(str(t), str(s), d)
 
     def subst_in_file_string(target, source, env):
         """This is what gets printed on the console."""
-        return '\n'.join(['Substituting vars from %s into %s'%(str(s), str(t))
+        return '\n'.join(['Substituting vars from {0!s} into {1!s}'.format(str(s), str(t))
                           for (t,s) in zip(target, source)])
 
     def subst_emitter(target, source, env):
