@@ -41,16 +41,16 @@ class BuildDesc:
         return environ
 
     def cmake_args(self):
-        args = ["-D%s" % var for var in self.variables]
+        args = ["-D{0!s}".format(var) for var in self.variables]
         # skip build type for Visual Studio solution as it cause warning
         if self.build_type and 'Visual' not in self.generator:
-            args.append("-DCMAKE_BUILD_TYPE=%s" % self.build_type)
+            args.append("-DCMAKE_BUILD_TYPE={0!s}".format(self.build_type))
         if self.generator:
             args.extend(['-G', self.generator])
         return args
 
     def __repr__(self):
-        return "BuildDesc(%s, build_type=%s)" %  (" ".join(self.cmake_args()), self.build_type)
+        return "BuildDesc({0!s}, build_type={1!s})".format(" ".join(self.cmake_args()), self.build_type)
 
 class BuildData:
     def __init__(self, desc, work_dir, source_dir):
@@ -63,7 +63,7 @@ class BuildData:
         self.build_succeeded = False
 
     def execute_build(self):
-        print('Build %s' % self.desc)
+        print('Build {0!s}'.format(self.desc))
         self._make_new_work_dir()
         self.cmake_succeeded = self._generate_makefiles()
         if self.cmake_succeeded:
@@ -92,7 +92,7 @@ class BuildData:
         stdout, _ = process.communicate()
         succeeded = (process.returncode == 0)
         with open(log_path, 'wb') as flog:
-            log = ' '.join(cmd) + '\n' + stdout + '\nExit code: %r\n' % process.returncode
+            log = ' '.join(cmd) + '\n' + stdout + '\nExit code: {0!r}\n'.format(process.returncode)
             flog.write(fix_eol(log))
         return succeeded
 
@@ -195,12 +195,12 @@ def generate_html_report(html_report_path, builds):
     for variable in variables:
         build_types = sorted(build_types_by_variable[variable])
         nb_build_type = len(build_types_by_variable[variable])
-        th_vars.append('<th colspan="%d">%s</th>' % (nb_build_type, cgi.escape(' '.join(variable))))
+        th_vars.append('<th colspan="{0:d}">{1!s}</th>'.format(nb_build_type, cgi.escape(' '.join(variable))))
         for build_type in build_types:
-            th_build_types.append('<th>%s</th>' % cgi.escape(build_type))
+            th_build_types.append('<th>{0!s}</th>'.format(cgi.escape(build_type)))
     tr_builds = []
     for generator in sorted(builds_by_generator):
-        tds = [ '<td>%s</td>\n' % cgi.escape(generator) ]
+        tds = [ '<td>{0!s}</td>\n'.format(cgi.escape(generator)) ]
         for variable in variables:
             build_types = sorted(build_types_by_variable[variable])
             for build_type in build_types:
@@ -211,14 +211,14 @@ def generate_html_report(html_report_path, builds):
                     build_status = 'ok' if build.build_succeeded else 'FAILED'
                     cmake_log_url = os.path.relpath(build.cmake_log_path, report_dir)
                     build_log_url = os.path.relpath(build.build_log_path, report_dir)
-                    td = '<td class="%s"><a href="%s" class="%s">CMake: %s</a>' % (                        build_status.lower(), cmake_log_url, cmake_status.lower(), cmake_status)
+                    td = '<td class="{0!s}"><a href="{1!s}" class="{2!s}">CMake: {3!s}</a>'.format(build_status.lower(), cmake_log_url, cmake_status.lower(), cmake_status)
                     if build.cmake_succeeded:
-                        td += '<br><a href="%s" class="%s">Build: %s</a>' % (                            build_log_url, build_status.lower(), build_status)
+                        td += '<br><a href="{0!s}" class="{1!s}">Build: {2!s}</a>'.format(build_log_url, build_status.lower(), build_status)
                     td += '</td>'
                 else:
                     td = '<td></td>'
                 tds.append(td)
-        tr_builds.append('<tr>%s</tr>' % '\n'.join(tds))
+        tr_builds.append('<tr>{0!s}</tr>'.format('\n'.join(tds)))
     html = HTML_TEMPLATE.substitute(        title='Batch build report',
         th_vars=' '.join(th_vars),
         th_build_types=' '.join(th_build_types),
@@ -249,23 +249,23 @@ python devtools\batchbuild.py e:\buildbots\jsoncpp\build . devtools\agent_vmw7.j
     config_paths = args[2:]
     for config_path in config_paths:
         if not os.path.isfile(config_path):
-            parser.error("Can not read: %r" % config_path)
+            parser.error("Can not read: {0!r}".format(config_path))
 
     # generate build variants
     build_descs = []
     for config_path in config_paths:
         build_descs_by_axis = load_build_variants_from_config(config_path)
         build_descs.extend(generate_build_variants(build_descs_by_axis))
-    print('Build variants (%d):' % len(build_descs))
+    print('Build variants ({0:d}):'.format(len(build_descs)))
     # assign build directory for each variant
     if not os.path.isdir(work_dir):
         os.makedirs(work_dir)
     builds = []
     with open(os.path.join(work_dir, 'matrix-dir-map.txt'), 'wt') as fmatrixmap:
         for index, build_desc in enumerate(build_descs):
-            build_desc_work_dir = os.path.join(work_dir, '%03d' % (index+1))
+            build_desc_work_dir = os.path.join(work_dir, '{0:03d}'.format((index+1)))
             builds.append(BuildData(build_desc, build_desc_work_dir, source_dir))
-            fmatrixmap.write('%s: %s\n' % (build_desc_work_dir, build_desc))
+            fmatrixmap.write('{0!s}: {1!s}\n'.format(build_desc_work_dir, build_desc))
     for build in builds:
         build.execute_build()
     html_report_path = os.path.join(work_dir, 'batchbuild-report.html')

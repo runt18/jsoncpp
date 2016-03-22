@@ -68,7 +68,7 @@ def ant_pattern_to_re(ant_pattern):
     """
     rex = ['^']
     next_pos = 0
-    sep_rex = r'(?:/|%s)' % re.escape(os.path.sep)
+    sep_rex = r'(?:/|{0!s})'.format(re.escape(os.path.sep))
 ##    print 'Converting', ant_pattern
     for match in _ANT_RE.finditer(ant_pattern):
 ##        print 'Matched', match.group()
@@ -76,13 +76,13 @@ def ant_pattern_to_re(ant_pattern):
         if match.start(0) != next_pos:
             raise ValueError("Invalid ant pattern")
         if match.group(1): # /**/
-            rex.append(sep_rex + '(?:.*%s)?' % sep_rex)
+            rex.append(sep_rex + '(?:.*{0!s})?'.format(sep_rex))
         elif match.group(2): # **/
-            rex.append('(?:.*%s)?' % sep_rex)
+            rex.append('(?:.*{0!s})?'.format(sep_rex))
         elif match.group(3): # /**
             rex.append(sep_rex + '.*')
         elif match.group(4): # *
-            rex.append('[^/%s]*' % re.escape(os.path.sep))
+            rex.append('[^/{0!s}]*'.format(re.escape(os.path.sep)))
         elif match.group(5): # /
             rex.append(sep_rex)
         else: # somepath
